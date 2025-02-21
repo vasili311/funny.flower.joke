@@ -8,11 +8,11 @@
     body {
       margin: 0;
       padding: 0;
-      background-color: #f5e6ca; /* შეგიძლიათ შეცვალოთ სასურველ ფერზე */
+      background-color: #f5e6ca;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh; /* მთელ ეკრანს იკავებს */
+      height: 100vh;
       font-family: Arial, sans-serif;
     }
     /* ცენტრალური ბლოკი */
@@ -29,7 +29,7 @@
       font-size: 1.2rem;
       margin-bottom: 20px;
     }
-    /* ღილაკების საერთო სტილი */
+    /* ღილაკების კონტეინერი */
     .buttonContainer {
       margin-bottom: 20px;
     }
@@ -75,14 +75,14 @@
       <button id="btnNo" class="btn">No</button>
     </div>
 
-    <!-- ძაღლის ფოტო (Yes-ის შემთხვევაში) -->
+    <!-- ძაღლის ფოტო (გამოჩნდება Yes-ის შემთხვევაში და ასევე, როდესაც No-ისას "this is for you"-ს ვწერთ) -->
     <img
       id="dogImage"
-      src= "https://www.cuteness.com/cuteness/16-smiling-dogs-to-brighten-your-day/25aa0f66aafa477eafd047358745a850.png"
+      src="https://www.cuteness.com/cuteness/16-smiling-dogs-to-brighten-your-day/25aa0f66aafa477eafd047358745a850.png"
       alt="Dog with Flowers"
     />
 
-    <!-- კატის ფოტო (No-ის შემთხვევაში) -->
+    <!-- კატის ფოტო (გამოჩნდება პირველ No-სას) -->
     <img
       id="catImage"
       src="https://media.rnztools.nz/rnz/image/upload/s---up7dilw--/c_scale,f_auto,q_auto,w_1050/v1673917056/4LF1EO1_l_intro_1647359651_jpg?_a=BACCd2AD"
@@ -91,13 +91,16 @@
   </div>
 
   <script>
-    let noStep = 0; 
-    // noStep აღწერს, რამდენჯერ უთხრა მომხმარებელმა "No" საწყის კითხვაზე ან შემდგომ კითხვებზე
+    let noStep = 0;
+    /* noStep მნიშვნელობები:
+         0 - საწყისი კითხვა.
+         1 - "are you sure?".
+         2 - "are you REALLY sure?".
+    */
 
     const questionText = document.getElementById("questionText");
     const dogImage = document.getElementById("dogImage");
     const catImage = document.getElementById("catImage");
-
     const btnYes = document.getElementById("btnYes");
     const btnNo = document.getElementById("btnNo");
 
@@ -105,64 +108,68 @@
     dogImage.style.display = "none";
     catImage.style.display = "none";
 
-    // Yes ღილაკის კლიკი
     btnYes.addEventListener("click", () => {
-      // თუ ჯერ არც ერთი No არ უთქვამს (noStep == 0),
-      // ეს ნიშნავს საწყის კითხვაზე პასუხი არის Yes
       if (noStep === 0) {
+        // საწყის კითხვაზე Yes: დავბლოკავთ შეკითხვას და ღილაკებს, გამოჩნდება ძაღლის ფოტო
         showDogImage();
-      } 
-      // თუ საწყის კითხვაზე Already No-ა ნათქვამი, 
-      // ესე იგი ახლა "დარწმუნებული ხარ?" ან "ნამდვილად დარწმუნებული ხარ?"-ზე პასუხობს Yes-ს
-      else if (noStep === 1) {
-        // პირველი "დარწმუნებული ხარ?"-ის მერე Yes
-        questionText.textContent = "are you really sure?";
-        noStep = 2; // გადავდივართ მეორე ეტაპზე
+      } else if (noStep === 1) {
+        // "are you sure?" -ზე Yes: ცვლილება "are you REALLY sure?" და noStep = 2
+        questionText.textContent = "are you REALLY sure?";
+        noStep = 2;
       } else if (noStep === 2) {
-        // მეორე "ნამდვილად დარწმუნებული ხარ?"-ზეც Yes
+        // "are you REALLY sure?" -ზე Yes: Alert და ვამალავთ შეკითხვას
         alert("თავში ქვა გიხლია!!!!");
-        hideAll();
+        hidePrompt();
       }
     });
 
-    // No ღილაკის კლიკი
     btnNo.addEventListener("click", () => {
-      // საწყის კითხვაზე No
       if (noStep === 0) {
+        // საწყის კითხვაზე No: გამოჩნდება კატის ფოტო და ტექსტი "are you sure?"
         showCatImage();
         questionText.textContent = "are you sure?";
         noStep = 1;
-      }
-      // თუ ახლა "დარწმუნებული ხარ?"-ზეა No
-      else if (noStep === 1) {
-        alert("ეს შენ");
-        hideAll();
-      }
-      // თუ "ნამდვილად დარწმუნებული ხარ?"-ზეც No
-      else if (noStep === 2) {
-        alert("ეს შენ");
-        hideAll();
+      } else if (noStep === 1) {
+        // "are you sure?" -ზე No: ჩაწერს ტექსტად "this is for you", დამალავს ღილაკებს და კატის ფოტოს, და ასევე გამოჩნდება ძაღლის ფოტო
+        questionText.textContent = "this is for you";
+        hideButtons();
+        catImage.style.display = "none";
+        showDogImageWithText();
+      } else if (noStep === 2) {
+        // "are you REALLY sure?" -ზე No: იგივე მოქმედება
+        questionText.textContent = "this is for you";
+        hideButtons();
+        catImage.style.display = "none";
+        showDogImageWithText();
       }
     });
 
-    // =================== ფუნქციები ===================
-
-    // ძაღლის ჩვენება (Yes პირველივე შემთხვევაში)
+    // Yes-ზე საწყის შემთხვევაში: გვაჩვენებს ძაღლის ფოტო და იდაფრებს შეკითხვას და ღილაკებს
     function showDogImage() {
       questionText.style.display = "none";
-      btnYes.style.display = "none";
-      btnNo.style.display = "none";
+      document.querySelector(".buttonContainer").style.display = "none";
       dogImage.style.display = "block";
     }
 
-    // კატის ჩვენება (No პირველივე შემთხვევაში)
+    // აჩვენებს კატის ფოტოს
     function showCatImage() {
       catImage.style.display = "block";
     }
 
-    // ყველაფრის დამალვა (საბოლოო ნაბიჯზე)
-    function hideAll() {
-      document.querySelector(".container").style.display = "none";
+    // დამალავს ღილაკების კონტეინერს
+    function hideButtons() {
+      document.querySelector(".buttonContainer").style.display = "none";
+    }
+
+    // დამალავს შეკითხვას და ღილაკებს (გამოიყენება Yes-ის ბოლოს)
+    function hidePrompt() {
+      questionText.style.display = "none";
+      document.querySelector(".buttonContainer").style.display = "none";
+    }
+
+    // ამ ფუნქციით ჩვენ ვაჩვენებთ ძაღლის ფოტოს, როდესაც ტექსტში "this is for you" წერია, და ის ჩნდება წერილის ქვემოთ
+    function showDogImageWithText() {
+      dogImage.style.display = "block";
     }
   </script>
 </body>
